@@ -4,6 +4,8 @@ extern crate kafka;
 #[macro_use]
 extern crate lazy_static;
 extern crate openssl;
+#[macro_use]
+extern crate router;
 
 use iron::prelude::*;
 use iron::status;
@@ -11,6 +13,7 @@ use kafka::client::{SecurityConfig, KafkaClient};
 use kafka::producer::{Producer, Record};
 use openssl::ssl::{SslContext, SslMethod};
 use openssl::x509::X509FileType;
+use router::Router;
 use std::{env, path, thread};
 use std::sync::{Arc, Mutex, mpsc};
 
@@ -51,13 +54,13 @@ lazy_static! {
     static ref KAFKA_CLIENT_KEY_PATH: path::PathBuf = env::var("KAFKA_PROXY_KEY_PATH")
         .unwrap()
         .into();
-    static ref KAFKA_TOPIC: String = env::var("KAFKA_TOPIC")
+    static ref DEFAULT_TOPIC: String = env::var("DEFAULT_KAFKA_TOPIC")
         .unwrap();
     static ref PORT: u64 = env::var("PROXY_PORT")
         .unwrap()
         .parse::<_>()
         .unwrap();
-    static ref URL: String = format!("0.0.0.0::{}", *PORT);
+    static ref URL: String = format!("0.0.0.0:{}", *PORT);
 }
 
 fn load_kafka_client() -> KafkaClient {
@@ -67,6 +70,11 @@ fn load_kafka_client() -> KafkaClient {
     context.set_private_key_file(&*KAFKA_CLIENT_KEY_PATH, X509FileType::PEM).unwrap();
 
     KafkaClient::new_secure((*KAFKA_BROKERS).clone(), SecurityConfig::new(context))
+}
+
+struct MessagePayload {
+    topic: String,
+    payload: String,
 }
 
 fn main() {
@@ -80,9 +88,13 @@ fn main() {
 
     let kafka_proxy = move |ref mut req: &mut Request| -> IronResult<Response> {
         let body = req.get::<bodyparser::Raw>();
+        let topic = req.extensions.get::<Router>().unwrap().find("topic").unwrap_or(&*DEFAULT_TOPIC);
         match body {
             Ok(Some(body)) => {
-                &new_tx.lock().unwrap().send(body).unwrap();
+                &new_tx.lock().unwrap().send(MessagePayload {
+                    topic: String::from(topic),
+                    payload: body
+                }).unwrap();
                 Ok(Response::with(status::Ok))
             },
             Ok(None) => {
@@ -100,14 +112,15 @@ fn main() {
             if possible_payload.is_ok() {
                 let message_payload = possible_payload.unwrap();
                 producer.lock().unwrap().send(&Record{
-                    topic: &*KAFKA_TOPIC,
+                    topic: &message_payload.topic,
                     partition: -1,
                     key: (),
-                    value: message_payload,
+                    value: message_payload.payload,
                 }).unwrap();
             }
         }
     });
 
-    Iron::new(kafka_proxy).http(&*URL.as_str()).unwrap();
+    let router = router!(post "/kafka/:topic" => kafka_proxy);
+    Iron::new(router).http(&*URL.as_str()).unwrap();
 }

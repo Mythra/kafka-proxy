@@ -35,7 +35,10 @@ requests at the rate of thousands per second, and still guarantee that they'll b
 
 We support the same versions of kafka as `kafka-rust`. Which happens to be:
 ```
-kafka-rust is tested against Kafka 0.8.2.x and regularly used against Kafka 0.9 servers. However, efforts to implement support for new features from the Kafka 0.9 release are just in their beginnings.
+kafka-rust is tested against Kafka 0.8.2.x and regularly used
+against Kafka 0.9 servers. However, efforts to implement support
+for new features from the Kafka 0.9 release are just in their
+beginnings.
 ```
 
 [rust_link]: https://www.rust-lang.org/en-US/downloads.html

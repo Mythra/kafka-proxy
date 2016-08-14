@@ -1,12 +1,13 @@
 [package]
 name = "kafka-proxy"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Eric Coan <ecoan@instructure.com>"]
 
 [dependencies]
 
-iron = "0.4.0"
 bodyparser = { git = "https://github.com/iron/body-parser.git" }
-openssl = "0.7.14"
+iron = "0.4.0"
 kafka = "0.5.0"
 lazy_static = "0.2.1"
+openssl = "0.7.14"
+router = "0.2.0"

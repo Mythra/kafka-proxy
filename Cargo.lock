@@ -1,12 +1,13 @@
 [root]
 name = "kafka-proxy"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "bodyparser 0.4.1 (git+https://github.com/iron/body-parser.git)",
  "iron 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "kafka 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "openssl 0.7.14 (registry+https://github.com/rust-lang/crates.io-index)",
+ "router 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -337,6 +338,20 @@ dependencies = [
 name = "ref_slice"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "route-recognizer"
+version = "0.1.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "router"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "iron 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "route-recognizer 0.1.11 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "rustc-serialize"
