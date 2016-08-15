@@ -54,8 +54,6 @@ lazy_static! {
     static ref KAFKA_CLIENT_KEY_PATH: path::PathBuf = env::var("KAFKA_PROXY_KEY_PATH")
         .unwrap()
         .into();
-    static ref DEFAULT_TOPIC: String = env::var("DEFAULT_KAFKA_TOPIC")
-        .unwrap();
     static ref PORT: u64 = env::var("PROXY_PORT")
         .unwrap()
         .parse::<_>()
@@ -88,7 +86,7 @@ fn main() {
 
     let kafka_proxy = move |ref mut req: &mut Request| -> IronResult<Response> {
         let body = req.get::<bodyparser::Raw>();
-        let topic = req.extensions.get::<Router>().unwrap().find("topic").unwrap_or(&*DEFAULT_TOPIC);
+        let topic = req.extensions.get::<Router>().unwrap().find("topic").unwrap();
         match body {
             Ok(Some(body)) => {
                 &new_tx.lock().unwrap().send(MessagePayload {

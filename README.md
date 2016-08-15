@@ -28,7 +28,6 @@ requests at the rate of thousands per second, and still guarantee that they'll b
 | KAFKA_BROKERS         | A comma seperated list of brokers for kafka. Right now this has to be in the form: `ip:port`. Hostname resolution is coming soon. |
 | KAFKA_PROXY_CERT_PATH | The path to the certificate file to connect to kafka with.                                                                        |
 | KAFKA_PROXY_KEY_PATH  | The path to the key file to connect to kafka with.                                                                                |
-| KAFKA_TOPIC           | The topic to post to Kafka With.                                                                                                  |
 | PROXY_PORT            | The port for the HTTP Webserver to listen on.                                                                                     |
 
 ## Supported Kafka Versions ##
