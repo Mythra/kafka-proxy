@@ -2,6 +2,10 @@
 name = "kafka-proxy"
 version = "0.2.0"
 authors = ["Eric Coan <ecoan@instructure.com>"]
+license = "MIT"
+license-file = "LICENSE"
+homepage = "https://github.com/SecurityInsanity/kafka-proxy"
+repository = "https://github.com/SecurityInsanity/kafka-proxy"
 
 [dependencies]
 
