@@ -1,18 +1,19 @@
 [package]
 name = "kafka-proxy"
 description = "Takes in HTTP Posts, and sends them to a Kafka Server."
-version = "0.2.0"
+version = "0.4.0"
 authors = ["Eric Coan <ecoan@instructure.com>"]
 license = "MIT"
-license-file = "LICENSE"
 homepage = "https://github.com/SecurityInsanity/kafka-proxy"
 repository = "https://github.com/SecurityInsanity/kafka-proxy"
 
 [dependencies]
 
-bodyparser = "0.4.1"
-iron = "0.4.0"
-kafka = "0.5.0"
-lazy_static = "0.2.1"
-openssl = "0.7.14"
-router = "0.2.0"
+bodyparser = "0.4"
+iron = "0.4"
+jfs = "0.2"
+kafka = "0.5"
+lazy_static = "0.2"
+openssl = "0.7"
+router = "0.2"
+rustc-serialize = "0.3"

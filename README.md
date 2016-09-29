@@ -6,10 +6,13 @@ because setting up SSL Certs isn't that hard, and you should do it even if you t
 too.
 
 Right now the Kafka Client, and http webserver run on different threads. Although rust is very fast
-you shouldn't take the "200 OK" as meaning it has been posted in the kafka topic. Purely that it will
-be posted to the kafka topic assuming the server doesn't crash before it gets to it in the queue (
-which honestly will only happen if the kafka server is down). This is so we can process http
-requests at the rate of thousands per second, and still guarantee that they'll be posted to kafka.
+you shouldn't take the "200 OK" as meaning it has been posted in the kafka topic. This is so we can
+process http requests at the rate of thousands per second, and still guarantee that they'll be
+posted to kafka.
+
+If a message fails to send in kafka it will create a unique file inside of a folder called "kafka_rust".
+Kafka Rust will attempt to send messages from this folderthat have failed on reboot. This will
+hopefully increase the need for human checking. Even more so for payloads without timestamps in the message.
 
 ## Installation ##
 
@@ -28,6 +31,7 @@ requests at the rate of thousands per second, and still guarantee that they'll b
 | KAFKA_BROKERS         | A comma seperated list of brokers for kafka. Right now this has to be in the form: `ip:port`. Hostname resolution is coming soon. |
 | KAFKA_PROXY_CERT_PATH | The path to the certificate file to connect to kafka with.                                                                        |
 | KAFKA_PROXY_KEY_PATH  | The path to the key file to connect to kafka with.                                                                                |
+| PANIC_ON_BACKUP       | Whether the program should crash if we fail to backup a message that failed to send to kafka.                                     |
 | PROXY_PORT            | The port for the HTTP Webserver to listen on.                                                                                     |
 
 ## Supported Kafka Versions ##
