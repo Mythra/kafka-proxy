@@ -9,6 +9,19 @@ extern crate openssl;
 extern crate router;
 extern crate rustc_serialize;
 
+// Prometheus Deps
+#[cfg(feature = "stats-prometheus")]
+#[macro_use]
+extern crate prometheus;
+// END.
+
+// StatsD Deps
+#[cfg(feature = "stats-statsd")]
+extern crate cadence;
+// END.
+
+mod stats;
+
 use iron::prelude::*;
 use iron::status;
 use jfs::Store;
@@ -119,6 +132,14 @@ fn main() {
         }
     }
 
+    println!("[+] Initializing Metrics Reporter.");
+    let reporter = stats::Reporter{};
+    println!("[+] Starting Metrics Reporter.");
+    let reporter_tx = reporter.start_reporting();
+    let http_reporter = reporter_tx.clone();
+    let kafka_reporter = reporter_tx.clone();
+    println!("[+] Done.");
+
     let producer = Arc::new(Mutex::new(producer));
 
     let kafka_proxy = move |ref mut req: &mut Request| -> IronResult<Response> {
@@ -130,12 +151,24 @@ fn main() {
                     topic: String::from(topic),
                     payload: body
                 }).unwrap();
+                let _ = http_reporter.lock().unwrap().send(stats::Stat{
+                    is_http_request: true,
+                    was_successful: true
+                });
                 Ok(Response::with(status::Ok))
             },
             Ok(None) => {
+                let _ = http_reporter.lock().unwrap().send(stats::Stat{
+                    is_http_request: true,
+                    was_successful: false
+                });
                 Ok(Response::with(status::BadRequest))
             },
             Err(_) => {
+                let _ = http_reporter.lock().unwrap().send(stats::Stat{
+                    is_http_request: true,
+                    was_successful: false
+                });
                 Ok(Response::with(status::BadRequest))
             }
         }
@@ -166,6 +199,15 @@ fn main() {
                     } else {
                         println!("[-] Failed to send: [ {:?} ] to kafka, but has been backed up.", cloned_object);
                     }
+                    let _ = kafka_reporter.lock().unwrap().send(stats::Stat{
+                        is_http_request: false,
+                        was_successful: false
+                    });
+                } else {
+                    let _ = kafka_reporter.lock().unwrap().send(stats::Stat{
+                        is_http_request: false,
+                        was_successful: true
+                    });
                 }
             }
         }

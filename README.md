@@ -24,15 +24,22 @@ hopefully increase the need for human checking. Even more so for payloads withou
 
 3. Run the binary located in `target/<debug|release>kafka-proxy` passing in the necessary env vars.
 
+### Setting up Stats features ###
+
+Kafka-Proxy allows reporting of HTTP/Kafka stats to some of the most popular solutions out there.
+The two of these are prometheus, and statsd (called "Graphite" in some places in the source).
+In order to use one of these simply enable: `stats-prometheus`, or `stats-statsd` features at build time.
+
 ## Env Vars ##
 
-| Name                  | Function                                                                                                                          |
-|:----------------------|:----------------------------------------------------------------------------------------------------------------------------------|
-| KAFKA_BROKERS         | A comma seperated list of brokers for kafka. Right now this has to be in the form: `ip:port`. Hostname resolution is coming soon. |
-| KAFKA_PROXY_CERT_PATH | The path to the certificate file to connect to kafka with.                                                                        |
-| KAFKA_PROXY_KEY_PATH  | The path to the key file to connect to kafka with.                                                                                |
-| PANIC_ON_BACKUP       | Whether the program should crash if we fail to backup a message that failed to send to kafka.                                     |
-| PROXY_PORT            | The port for the HTTP Webserver to listen on.                                                                                     |
+| Name                  | Optional | Function                                                                                                                          |
+|:----------------------|:---------|:----------------------------------------------------------------------------------------------------------------------------------|
+| GRAPHITE_HOST         | Yes      | The IPv4 Address of the Graphite Host to POST results to for reporting with statsd.                                               |
+| KAFKA_BROKERS         | No       | A comma seperated list of brokers for kafka. Right now this has to be in the form: `ip:port`. Hostname resolution is coming soon. |
+| KAFKA_PROXY_CERT_PATH | No       | The path to the certificate file to connect to kafka with.                                                                        |
+| KAFKA_PROXY_KEY_PATH  | No       | The path to the key file to connect to kafka with.                                                                                |
+| PANIC_ON_BACKUP       | Yes      | Whether the program should crash if we fail to backup a message that failed to send to kafka.                                     |
+| PROXY_PORT            | No       | The port for the HTTP Webserver to listen on.                                                                                     |
 
 ## Supported Kafka Versions ##
 
