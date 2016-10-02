@@ -73,8 +73,8 @@ pub struct Stat {
 
 pub struct Reporter {}
 
+#[cfg(feature = "stats-prometheus")]
 impl Reporter {
-    #[cfg(feature = "stats-prometheus")]
     pub fn start_reporting(&self) -> Arc<Mutex<Sender<Stat>>> {
         let (tx, rx) = mpsc::channel::<Stat>();
         println!("[+] Starting Prometheus Reporter.");
@@ -101,8 +101,10 @@ impl Reporter {
         });
         Arc::new(Mutex::new(tx))
     }
+}
 
-    #[cfg(feature = "stats-statsd")]
+#[cfg(feature = "stats-statsd")]
+impl Reporter {
     pub fn start_reporting(&self) -> Arc<Mutex<Sender<Stat>>> {
         let (tx, rx) = mpsc::channel::<Stat>();
         println!("[+] Starting StasD Reporter.");
@@ -129,8 +131,10 @@ impl Reporter {
         });
         Arc::new(Mutex::new(tx))
     }
+}
 
-    #[cfg(all(not(feature = "stats-prometheus") , not(feature = "stats-statsd")))]
+#[cfg(all(not(feature = "stats-prometheus") , not(feature = "stats-statsd")))]
+impl Reporter {
     pub fn start_reporting(&self) -> Arc<Mutex<Sender<Stat>>> {
         let (tx, rx) = mpsc::channel::<Stat>();
         println!("[+] Starting No-OP Reporter.");

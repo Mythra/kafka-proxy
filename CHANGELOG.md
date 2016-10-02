@@ -1,3 +1,9 @@
+## 0.6.0 (October 1, 2016)
+
+- Adds in ability to add other failure reporting in the future.
+- Build out failure reporting to Slack as a feature (use `--feature reporter-slack`).
+- Cleaned up Statistics Reporting Code.
+
 ## 0.5.0 (September 29, 2016)
 
 - Build out statistics reporting (Defaults to "noop" i.e. just printing to STDOUT).

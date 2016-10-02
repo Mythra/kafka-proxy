@@ -20,6 +20,12 @@ extern crate prometheus;
 extern crate cadence;
 // END.
 
+// Slack Webhook Deps
+#[cfg(feature = "reporter-slack")]
+extern crate slack_hook;
+// END.
+
+mod reporter;
 mod stats;
 
 use iron::prelude::*;
@@ -140,6 +146,12 @@ fn main() {
     let kafka_reporter = reporter_tx.clone();
     println!("[+] Done.");
 
+    println!("[+] Initializing Failure Reporter.");
+    let failure_reporter = reporter::Reporter{};
+    println!("[+] Starting Failure Reporter.");
+    let failed_tx = failure_reporter.start_reporting();
+    println!("[+] Done.");
+
     let producer = Arc::new(Mutex::new(producer));
 
     let kafka_proxy = move |ref mut req: &mut Request| -> IronResult<Response> {
@@ -199,6 +211,7 @@ fn main() {
                     } else {
                         println!("[-] Failed to send: [ {:?} ] to kafka, but has been backed up.", cloned_object);
                     }
+                    let _ = failed_tx.lock().unwrap().send(());
                     let _ = kafka_reporter.lock().unwrap().send(stats::Stat{
                         is_http_request: false,
                         was_successful: false
