@@ -28,7 +28,16 @@ hopefully increase the need for human checking. Even more so for payloads withou
 
 Kafka-Proxy allows reporting of HTTP/Kafka stats to some of the most popular solutions out there.
 The two of these are prometheus, and statsd (called "Graphite" in some places in the source).
-In order to use one of these simply enable: `stats-prometheus`, or `stats-statsd` features at build time.
+In order to use one of these simply enable: `stats-prometheus`, or `stats-statsd` features at build time,
+and setup the env vars.
+
+### Setting up Error Notifying ###
+
+Kafka-Proxy allows alerting when we fail to send to kafka so you can fix the problem manually.
+Right now the only supported reporter is over slack, but if you want it to report somewhere else feel
+free to open an issue/PR implementing it.
+
+In order to use slack simply enable the feature: `reporter-slack` at build time, and setup the env vars.
 
 ## Env Vars ##
 
@@ -40,6 +49,8 @@ In order to use one of these simply enable: `stats-prometheus`, or `stats-statsd
 | KAFKA_PROXY_KEY_PATH  | No       | The path to the key file to connect to kafka with.                                                                                |
 | PANIC_ON_BACKUP       | Yes      | Whether the program should crash if we fail to backup a message that failed to send to kafka.                                     |
 | PROXY_PORT            | No       | The port for the HTTP Webserver to listen on.                                                                                     |
+| SLACK_WEBHOOK         | Yes      | The Slack Webhook URL to connect to slack.                                                                                        |
+| SLACK_CHANNEL         | Yes      | The slack channel to post to. Defaults to "#general".                                                                             |
 
 ## Supported Kafka Versions ##
 
