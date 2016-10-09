@@ -4,8 +4,6 @@ use std::sync::{Arc, Mutex, mpsc};
 
 #[cfg(feature = "reporter-slack")]
 use std::env;
-#[cfg(feature = "reporter-slack")]
-use slack_hook::{Slack, AttachmentBuilder, PayloadBuilder};
 
 #[cfg(feature = "reporter-slack")]
 lazy_static! {
@@ -13,11 +11,13 @@ lazy_static! {
     static ref SLACK_CHANNEL: String = env::var("SLACK_CHANNEL").unwrap_or("#general".to_string());
 }
 
-pub struct Reporter {}
+pub struct Reporter;
 
 #[cfg(feature = "reporter-slack")]
 impl Reporter {
     pub fn start_reporting(&self) -> Arc<Mutex<Sender<()>>> {
+        use slack_hook::{Slack, AttachmentBuilder, PayloadBuilder};
+
         let (tx, rx) = mpsc::channel::<()>();
         let slack = Slack::new(&SLACK_WEBHOOK[..]);
         if slack.is_err() {

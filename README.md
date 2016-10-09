@@ -41,16 +41,16 @@ In order to use slack simply enable the feature: `reporter-slack` at build time,
 
 ## Env Vars ##
 
-| Name                  | Optional | Function                                                                                                                          |
-|:----------------------|:---------|:----------------------------------------------------------------------------------------------------------------------------------|
-| GRAPHITE_HOST         | Yes      | The IPv4 Address of the Graphite Host to POST results to for reporting with statsd.                                               |
-| KAFKA_BROKERS         | No       | A comma seperated list of brokers for kafka. Right now this has to be in the form: `ip:port`. Hostname resolution is coming soon. |
-| KAFKA_PROXY_CERT_PATH | No       | The path to the certificate file to connect to kafka with.                                                                        |
-| KAFKA_PROXY_KEY_PATH  | No       | The path to the key file to connect to kafka with.                                                                                |
-| PANIC_ON_BACKUP       | Yes      | Whether the program should crash if we fail to backup a message that failed to send to kafka.                                     |
-| PROXY_PORT            | No       | The port for the HTTP Webserver to listen on.                                                                                     |
-| SLACK_WEBHOOK         | Yes      | The Slack Webhook URL to connect to slack.                                                                                        |
-| SLACK_CHANNEL         | Yes      | The slack channel to post to. Defaults to "#general".                                                                             |
+| Name                  | Optional  | Function                                                                                                                          |
+|:----------------------|:----------|:----------------------------------------------------------------------------------------------------------------------------------|
+| GRAPHITE_HOST         | Sometimes | The IPv4 Address of the Graphite Host to POST results to for reporting with statsd.                                               |
+| KAFKA_BROKERS         | No        | A comma seperated list of brokers for kafka. Right now this has to be in the form: `ip:port`. Hostname resolution is coming soon. |
+| KAFKA_PROXY_CERT_PATH | No        | The path to the certificate file to connect to kafka with.                                                                        |
+| KAFKA_PROXY_KEY_PATH  | No        | The path to the key file to connect to kafka with.                                                                                |
+| PANIC_ON_BACKUP       | Yes       | Whether the program should crash if we fail to backup a message that failed to send to kafka.                                     |
+| PROXY_PORT            | No        | The port for the HTTP Webserver to listen on.                                                                                     |
+| SLACK_WEBHOOK         | Sometimes | The Slack Webhook URL to connect to slack.                                                                                        |
+| SLACK_CHANNEL         | Yes       | The slack channel to post to. Defaults to "#general".                                                                             |
 
 ## Supported Kafka Versions ##
 
