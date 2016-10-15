@@ -41,6 +41,8 @@ In order to use slack simply enable the feature: `reporter-slack` at build time,
 
 ## Env Vars ##
 
+It should be noted env vars can be passed through CLI Opts in v0.7.0
+
 | Name                  | Optional  | Function                                                                                                                          |
 |:----------------------|:----------|:----------------------------------------------------------------------------------------------------------------------------------|
 | GRAPHITE_HOST         | Sometimes | The IPv4 Address of the Graphite Host to POST results to for reporting with statsd.                                               |

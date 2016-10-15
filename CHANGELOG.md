@@ -1,3 +1,9 @@
+## 0.7.0 (October 15, 2016)
+
+- Allows Env Vars to be passed through CLI Opts.
+- Add in dry run CLI Only OPT.
+- Fix Bug in Option Parsing.
+
 ## 0.6.0 (October 1, 2016)
 
 - Adds in ability to add other failure reporting in the future.
