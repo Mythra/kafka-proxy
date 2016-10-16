@@ -1,3 +1,9 @@
+## 0.8.0 (October 16, 2016)
+
+- Internal Refactoring.
+- Added Tests.
+- Make Dry Run not attempt to send stats.
+
 ## 0.7.0 (October 15, 2016)
 
 - Allows Env Vars to be passed through CLI Opts.

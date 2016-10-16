@@ -71,6 +71,15 @@ pub struct Stat {
     pub was_successful: bool,
 }
 
+impl Stat {
+    pub fn new(is_http_request: bool, was_successful: bool) -> Stat {
+        Stat {
+            is_http_request: is_http_request,
+            was_successful: was_successful
+        }
+    }
+}
+
 pub struct Reporter {}
 
 #[cfg(feature = "stats-prometheus")]
