@@ -33,10 +33,10 @@ impl Reporter {
         let (tx, rx) = mpsc::channel::<()>();
         let slack = Slack::new(&SLACK_WEBHOOK[..]);
         if slack.is_err() {
-            panic!("[-] Failed to setup slack client.");
+            panic!("Failed to setup slack client.");
         }
         let slack = slack.unwrap();
-        println!("[+] Starting Slack Reporter...");
+        info!("Starting Slack Reporter...");
         thread::spawn(move || {
             loop {
                 let possible_failure = rx.try_recv();
@@ -67,12 +67,12 @@ impl Reporter {
     /// returns the Sender wrapped in a mutex + arc.
     pub fn start_reporting(&self) -> Arc<Mutex<Sender<()>>> {
         let (tx, rx) = mpsc::channel::<()>();
-        println!("[+] Starting NoOp Reporter...");
+        info!("Starting NoOp Reporter...");
         thread::spawn(move || {
             loop {
                 let possible_failure = rx.try_recv();
                 if possible_failure.is_ok() {
-                    println!("[-] We could've reported to somewhere that this failed. But it's not configured.");
+                    debug!("We could've reported to somewhere that this failed. But it's not configured.");
                 }
             }
         });

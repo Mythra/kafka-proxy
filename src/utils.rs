@@ -41,6 +41,8 @@ pub fn get_args(matches: ArgMatches) -> Configuration {
     let mut panic_on_backup: bool = false;
     let mut dry_run: bool = false;
 
+    debug!("Parsing Certificate Path...");
+
     if matches.value_of("cert_path").is_some() {
         cert_path = matches.value_of("cert_path").unwrap().into();
     } else {
@@ -48,12 +50,16 @@ pub fn get_args(matches: ArgMatches) -> Configuration {
         cert_path = env_var.into();
     }
 
+    debug!("Parsing Key Path...");
+
     if matches.value_of("key_path").is_some() {
         key_path = matches.value_of("key_path").unwrap().into();
     } else {
         let env_var: String = env::var("KAFKA_PROXY_KEY_PATH").unwrap();
         key_path = env_var.into();
     }
+
+    debug!("Parsing Brokers...");
 
     if matches.value_of("brokers").is_some() {
         non_split_brokers = matches.value_of("brokers").unwrap().to_string();
@@ -63,11 +69,15 @@ pub fn get_args(matches: ArgMatches) -> Configuration {
 
     brokers = split_brokers(non_split_brokers);
 
+    debug!("Parsing Port...");
+
     if matches.value_of("port").is_some() {
         port = matches.value_of("port").unwrap().parse::<_>().unwrap();
     } else {
         port = env::var("PROXY_PORT").unwrap().parse::<_>().unwrap();
     }
+
+    debug!("Parsing Panic On Backup Flag");
 
     if matches.occurrences_of("panic_on_backup") > 0 {
         panic_on_backup = true;
@@ -76,9 +86,13 @@ pub fn get_args(matches: ArgMatches) -> Configuration {
         panic_on_backup = true;
     }
 
+    debug!("Parsing Dry Run Flag");
+
     if matches.occurrences_of("dry_run") > 0 {
         dry_run = true;
     }
+
+    debug!("Parsed Config");
 
     Configuration {
         cert_path: cert_path,
@@ -130,7 +144,7 @@ pub fn resend_failed_messages(db: &Store, producer: Option<Arc<Mutex<Producer>>>
     let failed_to_sends = db.get_all::<MessagePayload>();
 
     if failed_to_sends.is_err() {
-        println!("[-] Failed to get all failed to sends. Continuing.")
+        error!("Failed to get all failed to sends. Continuing.")
     }else {
         let failed_to_sends = failed_to_sends.unwrap();
         let producer = producer.unwrap();
@@ -145,12 +159,12 @@ pub fn resend_failed_messages(db: &Store, producer: Option<Arc<Mutex<Producer>>>
             });
 
             if attempt_to_send.is_err() {
-                println!("[-] Failed to resend backup message: [ {:?} ]", message_payload.clone());
+                error!("Failed to resend backup message: [ {:?} ]", message_payload.clone());
             } else {
                 let _ = db.delete(&id);
             }
         }
-        println!("[+] All done sending backup messages!");
+        info!("All done sending backup messages!");
     }
 }
 

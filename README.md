@@ -22,7 +22,7 @@ hopefully increase the need for human checking. Even more so for payloads withou
 2. To build the dev version simply run: `cargo build`, to build a release run: `cargo build --release`.
   (Note: Kafka-Rust requires you to have LibSnappy in your path: ```To build kafka-rust you'll need libsnappy-dev on your local machine. If that library is not installed in the usual path, you can export the LD_LIBRARY_PATH and LD_RUN_PATH environment variables before issueing cargo build.```).
 
-3. Run the binary located in `target/<debug|release>kafka-proxy` passing in the necessary env vars.
+3. Run the binary located in `target/<debug|release>/kafka-proxy` passing in the necessary env vars.
 
 ### Setting up Stats features ###
 
@@ -53,6 +53,10 @@ It should be noted env vars can be passed through CLI Opts in v0.7.0
 | PROXY_PORT            | No        | The port for the HTTP Webserver to listen on.                                                                                     |
 | SLACK_WEBHOOK         | Sometimes | The Slack Webhook URL to connect to slack.                                                                                        |
 | SLACK_CHANNEL         | Yes       | The slack channel to post to. Defaults to "#general".                                                                             |
+
+Finally logging is setup through the rust crate `log`, and `env_logger`. As such
+the logging level printed to STDOUT/STDERR is determined by the env var: `RUST_LOG`.
+Which I recommend setting at `INFO`, unless you need `DEBUG` for the advanced logs.
 
 ## Supported Kafka Versions ##
 

@@ -101,7 +101,7 @@ impl Reporter {
     /// Returns the Sender wrapped in an Arc + Mutex.
     pub fn start_reporting(&self) -> Arc<Mutex<Sender<Stat>>> {
         let (tx, rx) = mpsc::channel::<Stat>();
-        println!("[+] Starting Prometheus Reporter.");
+        info!("Starting Prometheus Reporter.");
         thread::spawn(move || {
             loop {
                 let possible_stat = rx.try_recv();
@@ -136,7 +136,7 @@ impl Reporter {
     /// 4. Returns the sender wrapped in an Arc + Mutex.
     pub fn start_reporting(&self) -> Arc<Mutex<Sender<Stat>>> {
         let (tx, rx) = mpsc::channel::<Stat>();
-        println!("[+] Starting StasD Reporter.");
+        info!("Starting StasD Reporter.");
         thread::spawn(move || {
             loop {
                 let possible_stat = rx.try_recv();
@@ -170,13 +170,13 @@ impl Reporter {
     /// Returns the mpsc channel wrapped in an arc + mutex.
     pub fn start_reporting(&self) -> Arc<Mutex<Sender<Stat>>> {
         let (tx, rx) = mpsc::channel::<Stat>();
-        println!("[+] Starting No-OP Reporter.");
+        info!("Starting No-OP Reporter.");
         thread::spawn(move || {
             loop {
                 let possible_stat = rx.try_recv();
                 if possible_stat.is_ok() {
                     let actual_stat = possible_stat.unwrap();
-                    println!("Recieved Stat: [ {:?} ].", actual_stat);
+                    info!("Recieved Stat: [ {:?} ].", actual_stat);
                 }
             }
         });

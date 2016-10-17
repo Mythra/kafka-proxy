@@ -1,3 +1,7 @@
+## 0.8.1 (October 17, 2016)
+
+- Use Rust-Lang log instead of `prinln!`.
+
 ## 0.8.0 (October 16, 2016)
 
 - Internal Refactoring.

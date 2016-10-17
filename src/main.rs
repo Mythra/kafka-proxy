@@ -10,6 +10,10 @@ extern crate openssl;
 extern crate router;
 extern crate rustc_serialize;
 
+#[macro_use]
+extern crate log;
+extern crate env_logger;
+
 #[cfg(feature = "stats-prometheus")]
 #[macro_use]
 extern crate prometheus;
@@ -43,6 +47,7 @@ use std::sync::{Arc, Mutex, mpsc};
 ///
 /// Returns a Kafka Client.
 fn load_kafka_client(cert_path: path::PathBuf, key_path: path::PathBuf, brokers: Vec<String>) -> KafkaClient {
+    debug!("Initializing Kafka Client.");
     let mut context = SslContext::new(SslMethod::Tlsv1).unwrap();
     context.set_cipher_list("DEFAULT").unwrap();
     context.set_certificate_file(&cert_path, X509FileType::PEM).unwrap();
@@ -52,21 +57,28 @@ fn load_kafka_client(cert_path: path::PathBuf, key_path: path::PathBuf, brokers:
 }
 
 fn main() {
-    let matches = utils::initialize_app().get_matches();
+    env_logger::init().unwrap();
 
+    info!("Starting Kafka-Proxy.");
+    let matches = utils::initialize_app().get_matches();
+    info!("Parsing Options...");
     let config = utils::get_args(matches);
     let copied_dry_run = config.dry_run;
     let copied_panic = config.panic_on_backup;
+    info!("Done Parsing Options.");
 
     let (tx, rx) = mpsc::channel();
     let original_tx = Arc::new(Mutex::new(tx));
     let new_tx = original_tx.clone();
 
+    info!("Loading a Backup Store.");
     let db = Store::new("kafka_rust");
     if db.is_err() {
+        error!("{:?}", db.err().unwrap());
         panic!("Failed to create Backup Store!");
     }
     let db = db.unwrap();
+    info!("Done.");
 
     let kafka_client: KafkaClient;
     let producer;
@@ -85,22 +97,24 @@ fn main() {
     }
 
     if !copied_dry_run {
+        info!("Resending Failed Messages...");
         utils::resend_failed_messages(&db, arcd_producer.clone());
+        info!("Done Resending.");
     }
 
-    println!("[+] Initializing Metrics Reporter.");
+    info!("Initializing Metrics Reporter.");
     let reporter = stats::Reporter{};
-    println!("[+] Starting Metrics Reporter.");
+    info!("Starting Metrics Reporter.");
     let reporter_tx = reporter.start_reporting();
     let http_reporter = reporter_tx.clone();
     let kafka_reporter = reporter_tx.clone();
-    println!("[+] Done.");
+    info!("Done.");
 
-    println!("[+] Initializing Failure Reporter.");
+    info!("Initializing Failure Reporter.");
     let failure_reporter = reporter::Reporter{};
-    println!("[+] Starting Failure Reporter.");
+    info!("Starting Failure Reporter.");
     let failed_tx = failure_reporter.start_reporting();
-    println!("[+] Done.");
+    info!("Done.");
 
     let kafka_proxy = move |ref mut req: &mut Request| -> IronResult<Response> {
         let body = req.get::<bodyparser::Raw>();
@@ -139,7 +153,7 @@ fn main() {
                 let cloned_object = message_payload.clone();
 
                 if copied_dry_run {
-                    println!("{:?}", message_payload);
+                    info!("{:?}", message_payload);
                 } else {
                     let arcd_producer = arcd_producer.clone().unwrap();
                     let attempt_to_send = arcd_producer.lock().unwrap().send(&Record{
@@ -153,12 +167,12 @@ fn main() {
                         let save_result = db.save(&cloned_object);
                         if save_result.is_err() {
                             if copied_panic {
-                                panic!("[-] Failed to backup: [ {:?} ]", cloned_object);
+                                panic!("Failed to backup: [ {:?} ]", cloned_object);
                             } else {
-                                println!("[-] Failed to backup: [ {:?} ]", cloned_object);
+                                error!("Failed to backup: [ {:?} ]", cloned_object);
                             }
                         } else {
-                            println!("[-] Failed to send: [ {:?} ] to kafka, but has been backed up.", cloned_object);
+                            error!("Failed to send: [ {:?} ] to kafka, but has been backed up.", cloned_object);
                         }
 
                         let _ = failed_tx.lock().unwrap().send(());
@@ -173,7 +187,7 @@ fn main() {
 
     let url = format!("0.0.0.0:{}", config.port);
 
-    println!("[+] Starting Kafka Proxy at: [ {:?} ]", url);
+    info!("Starting Kafka Proxy at: [ {:?} ]", url);
     let router = router!(post "/kafka/:topic" => kafka_proxy);
     Iron::new(router).http(&url.as_str()).unwrap();
 }
