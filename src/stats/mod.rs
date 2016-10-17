@@ -72,6 +72,7 @@ pub struct Stat {
 }
 
 impl Stat {
+    /// A Helper function to create a new "Stat" faster.
     pub fn new(is_http_request: bool, was_successful: bool) -> Stat {
         Stat {
             is_http_request: is_http_request,
@@ -80,10 +81,24 @@ impl Stat {
     }
 }
 
-pub struct Reporter {}
+/// A Statistic Reporter.
+/// This is a base struct that multiple reporters can implement.
+/// Based on features enabled at build time. The following reporters
+/// are the ones implemented right now:
+/// 1. Prometheus Reporter.
+/// 2. StatsD Reporter.
+/// 3. NoOp Reporter. (Default)
+/// All reporters have merely one function. "start_reporting".
+/// Which should return a Arc'd Mutex for a Sender where you send "Stat" instances.
+pub struct Reporter;
 
 #[cfg(feature = "stats-prometheus")]
 impl Reporter {
+    /// Starts the prometheus reporter.
+    /// Creates an mpsc channel.
+    /// Spawns a thread with an HTTP_SUCCESS_COUNTER, HTTP_FAILURE_COUNTER,
+    /// KAFKA_SUCCESS_COUNTER, and KAFKA_FAILURE_COUNTER.
+    /// Returns the Sender wrapped in an Arc + Mutex.
     pub fn start_reporting(&self) -> Arc<Mutex<Sender<Stat>>> {
         let (tx, rx) = mpsc::channel::<Stat>();
         println!("[+] Starting Prometheus Reporter.");
@@ -114,6 +129,11 @@ impl Reporter {
 
 #[cfg(feature = "stats-statsd")]
 impl Reporter {
+    /// Starts the StatsD reporter.
+    /// 1. Reads the GRAPHITE_HOST env var.
+    /// 2. Creates an mpsc channel.
+    /// 3. Spawns a thread.
+    /// 4. Returns the sender wrapped in an Arc + Mutex.
     pub fn start_reporting(&self) -> Arc<Mutex<Sender<Stat>>> {
         let (tx, rx) = mpsc::channel::<Stat>();
         println!("[+] Starting StasD Reporter.");
@@ -144,6 +164,10 @@ impl Reporter {
 
 #[cfg(all(not(feature = "stats-prometheus") , not(feature = "stats-statsd")))]
 impl Reporter {
+    /// Starts the NoOp reporter.
+    /// Creates an mpsc channel.
+    /// Spawns a thread.
+    /// Returns the mpsc channel wrapped in an arc + mutex.
     pub fn start_reporting(&self) -> Arc<Mutex<Sender<Stat>>> {
         let (tx, rx) = mpsc::channel::<Stat>();
         println!("[+] Starting No-OP Reporter.");

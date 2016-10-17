@@ -35,6 +35,13 @@ use router::Router;
 use std::{path, thread};
 use std::sync::{Arc, Mutex, mpsc};
 
+/// Loads a Secure Kafka Client.
+///
+/// * `cert_path` - The path to the certificate to use.
+/// * `key_path` - The path to the key to use.
+/// * `brokers` - A list of brokers in IP:PORT configuration.
+///
+/// Returns a Kafka Client.
 fn load_kafka_client(cert_path: path::PathBuf, key_path: path::PathBuf, brokers: Vec<String>) -> KafkaClient {
     let mut context = SslContext::new(SslMethod::Tlsv1).unwrap();
     context.set_cipher_list("DEFAULT").unwrap();
@@ -77,7 +84,9 @@ fn main() {
         arcd_producer = None;
     }
 
-    utils::resend_failed_messages(&db, copied_dry_run, arcd_producer.clone());
+    if !copied_dry_run {
+        utils::resend_failed_messages(&db, arcd_producer.clone());
+    }
 
     println!("[+] Initializing Metrics Reporter.");
     let reporter = stats::Reporter{};

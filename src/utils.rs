@@ -5,6 +5,9 @@ use ::models::{Configuration, MessagePayload};
 use std::{env, path};
 use std::sync::{Arc, Mutex};
 
+/// Initializze the Clap Application.
+/// Basically a sole entry point to the CLI Option Parsing.
+/// So that way we don't have to define it again for testing.
 pub fn initialize_app() -> App<'static, 'static> {
     App::new("kafka-proxy").version("0.8.0").author("Eric <ecoan@instructure.com>")
         .about("Takes in HTTP Posts, and sends their bodies to kafka.")
@@ -22,6 +25,13 @@ pub fn initialize_app() -> App<'static, 'static> {
                 .help("Enabled 'dry run' aka only logging to STDOUT."))
 }
 
+/// Parses the arguments from the command line, and env
+/// vars to get the final options hash. This is most likely
+/// where users who don't know whats going on.
+/// If a required option isn't passed through a command line option,
+/// then it is assumed that it is provided through environment variable.
+/// If it isn't passed through an environment variable then the program panics
+/// because it can't unwrap a value.
 pub fn get_args(matches: ArgMatches) -> Configuration {
     let cert_path: path::PathBuf;
     let key_path: path::PathBuf;
@@ -80,6 +90,11 @@ pub fn get_args(matches: ArgMatches) -> Configuration {
     }
 }
 
+/// Takes in a String of comma seperated brokers,
+/// and returns a Vector of IP:PORT. In the future this
+/// will take care of DNS Lookup. However right now,
+/// this simply splits based on the ',', and then resplits on
+/// the ":" in order to make sure a user specified a port.
 pub fn split_brokers(to_split: String) -> Vec<String> {
     to_split.split(',')
         .map(|raw_hostname| {
@@ -108,10 +123,10 @@ pub fn split_brokers(to_split: String) -> Vec<String> {
         .collect()
 }
 
-pub fn resend_failed_messages(db: &Store, dry_run: bool, producer: Option<Arc<Mutex<Producer>>>) {
-    if dry_run {
-        return;
-    }
+/// A function to resend all failed messages in JFS "DB".
+/// This will only be called in a non-dry run state, and only when
+/// the program is first booting.
+pub fn resend_failed_messages(db: &Store, producer: Option<Arc<Mutex<Producer>>>) {
     let failed_to_sends = db.get_all::<MessagePayload>();
 
     if failed_to_sends.is_err() {
