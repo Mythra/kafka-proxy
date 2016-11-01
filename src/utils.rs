@@ -3,6 +3,7 @@ use jfs::Store;
 use kafka::producer::{Producer, Record};
 use ::models::{Configuration, MessagePayload};
 use std::{env, path};
+use std::collections::BTreeMap;
 use std::sync::{Arc, Mutex};
 
 /// Initializze the Clap Application.
@@ -166,6 +167,28 @@ pub fn resend_failed_messages(db: &Store, producer: Option<Arc<Mutex<Producer>>>
         }
         info!("All done sending backup messages!");
     }
+}
+
+pub fn get_mem_templates() -> BTreeMap<String, String> {
+    let mut memory_handlebars_templates = BTreeMap::new();
+    memory_handlebars_templates.insert("main_page".to_owned(), r#"
+    <form id="ActionForm">
+        <input id="KafkaTopic" placeholder="The Topic" type="text" />
+        <input id="KafkaMessage" placeholder="Your Message" type="text" />
+        <button onclick="doSubmit()">Submit</button>
+    </form>
+    <script>
+        function doSubmit() {
+            var xhr = new XMLHttpRequest();
+            var topic = document.getElementById("KafkaTopic").value;
+            var message = document.getElementById("KafkaMessage").value;
+            xhr.open('POST', '/kafka/' + encodeURIComponent(topic), true);
+            xhr.send(message);
+        }
+    </script>
+    "#.to_owned());
+
+    memory_handlebars_templates
 }
 
 #[test]

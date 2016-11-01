@@ -1,13 +1,17 @@
 extern crate bodyparser;
 extern crate clap;
 extern crate iron;
-extern crate jfs;
-extern crate kafka;
-#[macro_use]
-extern crate lazy_static;
-extern crate openssl;
 #[macro_use]
 extern crate router;
+extern crate handlebars;
+extern crate handlebars_iron as hbs;
+
+extern crate kafka;
+extern crate openssl;
+
+extern crate jfs;
+#[macro_use]
+extern crate lazy_static;
 extern crate rustc_serialize;
 
 #[macro_use]
@@ -29,6 +33,7 @@ mod utils;
 
 use iron::prelude::*;
 use iron::status;
+use hbs::{Template, HandlebarsEngine, MemorySource};
 use jfs::Store;
 use kafka::client::{SecurityConfig, KafkaClient};
 use kafka::producer::{Producer, Record};
@@ -116,6 +121,15 @@ fn main() {
     let failed_tx = failure_reporter.start_reporting();
     info!("Done.");
 
+    info!("Initalizing Web UI.");
+    let mut hbse = HandlebarsEngine::new();
+    hbse.add(Box::new(MemorySource(utils::get_mem_templates())));
+
+    if let Err(r) = hbse.reload() {
+        error!("{}", r);
+        panic!("Failed to load HandlebarsEngine templates.");
+    }
+
     let kafka_proxy = move |ref mut req: &mut Request| -> IronResult<Response> {
         let body = req.get::<bodyparser::Raw>();
         let topic = req.extensions.get::<Router>().unwrap().find("topic").unwrap();
@@ -185,9 +199,20 @@ fn main() {
         }
     });
 
+    let ui_proxy = move |ref mut req: &mut Request| -> IronResult<Response> {
+        let mut resp = Response::new();
+        resp.set_mut(Template::new("main_page", ())).set_mut(status::Ok);
+        Ok(resp)
+    };
+
     let url = format!("0.0.0.0:{}", config.port);
 
     info!("Starting Kafka Proxy at: [ {:?} ]", url);
-    let router = router!(post "/kafka/:topic" => kafka_proxy);
-    Iron::new(router).http(&url.as_str()).unwrap();
+    let router = router!(
+        get "/" => ui_proxy,
+        post "/kafka/:topic" => kafka_proxy
+    );
+    let mut chain = Chain::new(router);
+    chain.link_after(hbse);
+    Iron::new(chain).http(&url.as_str()).unwrap();
 }

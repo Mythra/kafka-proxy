@@ -1,3 +1,8 @@
+## 0.9.0 (November 1, 2016)
+
+- Add in Handlebars/Handlebars-Iron.
+- Adds in web-ui to test posting to kafka.
+
 ## 0.8.1 (October 17, 2016)
 
 - Use Rust-Lang log instead of `prinln!`.
