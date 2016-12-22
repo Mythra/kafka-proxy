@@ -1,3 +1,7 @@
+## 0.10.1 (December 22, 2016)
+
+- Add in additional failure logging.
+
 ## 0.10.0 (December 21, 2016)
 
 - Add in optional "NO_SSL" env var.

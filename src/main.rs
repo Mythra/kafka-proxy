@@ -187,9 +187,11 @@ fn main() {
                             if copied_panic {
                                 panic!("Failed to backup: [ {:?} ]", cloned_object);
                             } else {
+                                error!("Failed Because: {:?}", save_result.err().unwrap());
                                 error!("Failed to backup: [ {:?} ]", cloned_object);
                             }
                         } else {
+                            error!("Failed Because: {:?}", attempt_to_send.err().unwrap());
                             error!("Failed to send: [ {:?} ] to kafka, but has been backed up.", cloned_object);
                         }
 

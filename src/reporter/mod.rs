@@ -52,7 +52,10 @@ impl Reporter {
                         .build()
                         .unwrap();
 
-                    let _ = slack.send(&p);
+                    let result = slack.send(&p);
+                    if result.is_err() {
+                        error!("Failed to send to slack: {:?}", result.err().unwrap())
+                    }
                 }
             }
         });
