@@ -41,7 +41,7 @@ use models::MessagePayload;
 use openssl::ssl::{SslContext, SslMethod};
 use openssl::x509::X509FileType;
 use router::Router;
-use std::{path, thread};
+use std::{env, path, thread};
 use std::sync::{Arc, Mutex, mpsc};
 
 /// Loads a Secure Kafka Client.
@@ -53,12 +53,16 @@ use std::sync::{Arc, Mutex, mpsc};
 /// Returns a Kafka Client.
 fn load_kafka_client(cert_path: path::PathBuf, key_path: path::PathBuf, brokers: Vec<String>) -> KafkaClient {
     debug!("Initializing Kafka Client.");
-    let mut context = SslContext::new(SslMethod::Tlsv1).unwrap();
-    context.set_cipher_list("DEFAULT").unwrap();
-    context.set_certificate_file(&cert_path, X509FileType::PEM).unwrap();
-    context.set_private_key_file(&key_path, X509FileType::PEM).unwrap();
+    if env::var("NO_SSL").is_err() {
+        let mut context = SslContext::new(SslMethod::Tlsv1).unwrap();
+        context.set_cipher_list("DEFAULT").unwrap();
+        context.set_certificate_file(&cert_path, X509FileType::PEM).unwrap();
+        context.set_private_key_file(&key_path, X509FileType::PEM).unwrap();
 
-    KafkaClient::new_secure(brokers, SecurityConfig::new(context))
+        KafkaClient::new_secure(brokers, SecurityConfig::new(context))
+    } else {
+        KafkaClient::new(brokers)
+    }
 }
 
 fn main() {
@@ -199,7 +203,7 @@ fn main() {
         }
     });
 
-    let ui_proxy = move |ref mut req: &mut Request| -> IronResult<Response> {
+    let ui_proxy = move |_: &mut Request| -> IronResult<Response> {
         let mut resp = Response::new();
         resp.set_mut(Template::new("main_page", ())).set_mut(status::Ok);
         Ok(resp)

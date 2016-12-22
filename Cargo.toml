@@ -1,7 +1,7 @@
 [package]
 name = "kafka-proxy"
 description = "Takes in HTTP Posts, and sends them to a Kafka Server."
-version = "0.9.0"
+version = "0.10.0"
 authors = ["Eric Coan <ecoan@instructure.com>"]
 license = "MIT"
 homepage = "https://github.com/SecurityInsanity/kafka-proxy"

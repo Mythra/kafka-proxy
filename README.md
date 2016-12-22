@@ -53,6 +53,7 @@ It should be noted env vars can be passed through CLI Opts in v0.7.0
 | PROXY_PORT            | No        | The port for the HTTP Webserver to listen on.                                                                                     |
 | SLACK_WEBHOOK         | Sometimes | The Slack Webhook URL to connect to slack.                                                                                        |
 | SLACK_CHANNEL         | Yes       | The slack channel to post to. Defaults to "#general".                                                                             |
+| NO_SSL                | Yes       | Whether to blacklist ssl.                                                                                                         |
 
 Finally logging is setup through the rust crate `log`, and `env_logger`. As such
 the logging level printed to STDOUT/STDERR is determined by the env var: `RUST_LOG`.

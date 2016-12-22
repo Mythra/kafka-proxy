@@ -1,3 +1,7 @@
+## 0.10.0 (December 21, 2016)
+
+- Add in optional "NO_SSL" env var.
+
 ## 0.9.0 (November 1, 2016)
 
 - Add in Handlebars/Handlebars-Iron.
