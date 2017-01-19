@@ -1,3 +1,7 @@
+## 1.0.0 (January 18th, 2017)
+
+- Bump "cadence" for StatsD [Breaking]
+
 ## 0.10.1 (December 22, 2016)
 
 - Add in additional failure logging.
