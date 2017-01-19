@@ -14,7 +14,7 @@ use std::str::FromStr;
 #[cfg(feature = "stats-statsd")]
 use cadence::prelude::*;
 #[cfg(feature = "stats-statsd")]
-use cadence::{StatsdClient, UdpMetricSink, DEFAULT_PORT};
+use cadence::{StatsdClient, DEFAULT_PORT};
 
 #[cfg(feature = "stats-prometheus")]
 lazy_static! {
@@ -57,8 +57,8 @@ lazy_static! {
 
 #[cfg(feature = "stats-statsd")]
 lazy_static! {
-    static ref GRAPIHTE_CLIENT: StatsdClient<UdpMetricSink> =
-        StatsdClient::<UdpMetricSink>::from_udp_host("kafka.proxy",
+    static ref GRAPIHTE_CLIENT: StatsdClient =
+        StatsdClient::from_udp_host("kafka.proxy",
             (Ipv4Addr::from_str(&env::var("GRAPHITE_HOST").unwrap()).unwrap(), DEFAULT_PORT)).unwrap();
 }
 
